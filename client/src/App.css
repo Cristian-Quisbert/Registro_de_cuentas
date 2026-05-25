@@ -1,31 +1,53 @@
-.App {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* Forzar que el cuerpo de la página ocupe todo el alto y tenga fondo oscuro */
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: #1e1e24 !important; /* Gris oscuro general */
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
-.datos input{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-  align-items: center;
+#root {
+  min-height: 100vh;
+  background-color: #1e1e24;
 }
 
-.datos input{
-  width: 300px;
-  height: 30px;
-  font-size: 20px;
-  padding-left: 10px;
-  border-radius: 5px;
-  margin: 5px;
-  
+/* Forzar que TODOS los títulos principales H2 sean completamente blancos */
+h2 {
+  color: #ffffff !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
 }
 
-.datos button{
-  width: 320px;
-  height: 50px;
-  margin-top: 5px;
-  
+/* Asegurar el contraste de los textos dentro de la Tabla Oscura */
+.table-dark th, .table-dark td {
+  color: #ffffff !important; /* Texto de las celdas en blanco */
+  vertical-align: middle;
+}
+
+/* Ajustes de las tarjetas (Card) para modo oscuro */
+.card {
+  background-color: #2b2d42 !important;
+  color: #ffffff !important;
+  border: 1px solid #4a4e69 !important;
+}
+
+.card-header {
+  background-color: #3d405b !important;
+  color: #ffffff !important;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Estilo para los bloques estáticos a la izquierda de los inputs */
+.input-group-text {
+  background-color: #4a4e69 !important;
+  color: #ffffff !important;
+  border: 1px solid #4a4e69 !important;
+  font-weight: 500;
+}
+
+/* Forzar que las etiquetas de formularios (Login, etc.) sean blancas */
+label {
+  color: #ffffff !important;
 }
