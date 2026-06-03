@@ -1,26 +1,32 @@
+// usamos el framework express para crear rutas y manejar solicitudes HTTP
 const express = require('express');
+// creamos un router que es un subenrutador de la ruta principal (index.js)
 const router = express.Router();
+// mysql2 es para traducir las consultas SQL a JavaScript
 const mysql = require('mysql2');
+// PDFKit es para generar archivos PDF
 const PDFDocument = require('pdfkit');
 
+// conexión a la base de datos
 const db = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'print',
+    password: '',
     database: 'empleados_crud'
 });
 
-// --- RUTA: GENERAR PDF DE TRANSACCIONES (GET) ---
+// método get para generar un reporte en PDF del usuario logeado
 router.get("/pdf", (req, res) => {
+    // obtenemos el usuario actualmente logeado
     let usuario = req.query.usuario;
 
     if (!usuario || usuario === "undefined") {
         usuario = "admin"; 
     }
 
-    console.log(`Generando PDF para el usuario: ${usuario}`); // Esto saldrá en tu terminal de Node para auditar
+    console.log(`Generando PDF para el usuario: ${usuario}`); 
     
-    // CORRECCIÓN: Añadido "AND usuario = ?" y pasado [usuario] como parámetro
+    // consultamos la base de datos para obtener las transacciones activas
     db.query("SELECT * FROM transacciones WHERE activo = 1 AND usuario = ? ORDER BY fecha DESC", [usuario], (err, result) => {
         
         if (err) {
@@ -28,17 +34,16 @@ router.get("/pdf", (req, res) => {
             return res.status(500).send("Error al obtener los datos para el reporte");
         }
 
-        // Creamos un documento PDF en memoria
+        // Crea el documento en blanco en la memoria con un margen de 50 unidades
         const doc = new PDFDocument({ margin: 50 });
-
-        // Configuramos las cabeceras HTTP para que el navegador entienda que es un archivo de descarga
+        
+        // Indicamos que el contenido que se va a enviar es un PDF y ponemos un nombre al archivo que se descargue
         res.setHeader('Content-Type', 'application/pdf');
+        // obliga al navegador a descargar el archivo en lugar de mostrarlo (attchment = adjunto)
         res.setHeader('Content-Disposition', 'attachment; filename=Reporte_FinanzApp.pdf');
-
-        // Canalizamos la salida del PDF directamente a la respuesta HTTP (Stream)
+        // conectamos el flujo de datos del PDF al objeto de respuesta para que se envíe al cliente
         doc.pipe(res);
 
-        // --- DISEÑO DEL ENCABEZADO ---
         doc.fillColor('#2ec4b6').fontSize(24).text('FinanzApp - Reporte Financiero', { align: 'center' });
         doc.fillColor('#333333').fontSize(10).text(`Fecha de generación: ${new Date().toLocaleDateString()}`, { align: 'center' });
         doc.moveDown(2);
@@ -46,10 +51,9 @@ router.get("/pdf", (req, res) => {
         doc.fillColor('#111111').fontSize(14).text(`Historial de Movimientos de: ${usuario}`, { underline: true });
         doc.moveDown(1);
 
-        // --- TABLA DE DATOS CASERA ---
-        let y = doc.y; // Capturamos la posición vertical actual
+        // Definimos la posición inicial para la tabla
+        let y = doc.y; 
 
-        // Encabezados de columnas
         doc.fontSize(11).font('Helvetica-Bold');
         doc.text('Descripción', 50, y);
         doc.text('Monto', 220, y);
@@ -57,12 +61,10 @@ router.get("/pdf", (req, res) => {
         doc.text('Categoría', 380, y);
         doc.text('Fecha', 480, y);
         
-        // Línea divisoria
         doc.moveTo(50, y + 15).lineTo(550, y + 15).strokeColor('#aaaaaa').stroke();
         doc.font('Helvetica').fontSize(10);
         y += 25;
 
-        // Iteramos sobre los registros de la base de datos
         result.forEach(trans => {
             doc.text(trans.descripcion, 50, y, { width: 160, maxRows: 1 });
             
